@@ -1,0 +1,26 @@
+#"Added Index" = Table.AddIndexColumn(Source, "Index", 0, 1),
+RowNumbers = Table.SelectRows(#"Added Index", each
+Text.StartsWith([Column1], "ID Number") or
+Text.StartsWith([Column1], "ID Total"))
+
+
+/*  START NOTE  //   Eliminating the Added Index step while preserving the function.
+  Notice how the #”Added Index” step contains the Table.AddIndexColumn  function. 
+  On the RowNumbers line, you also see that the #”Added Index” step is the first parameter fed into the Table.SelectRows() function. 
+  If you want to avoid having a separate #”Added Index” step, all you need to do is substitute the
+    actual code within the #”Added Index” step in place of that term in the next line.
+    
+Warning: Remember when substituting code in this way that you want
+  everything between the equals sign and the final comma only.
+
+1.  By substituting the code in place,  2.  adding some line breaks,  3.  and removing the  #”Added Index” line completely, 
+  you end up with nested code, as follows:
+  //  END NOTE */
+ 
+RowNumbers = Table.SelectRows(
+              Table.AddIndexColumn(Source, "Index", 0, 1),
+              each Text.StartsWith([Column1], "ID Number")
+              or Text.StartsWith([Column1], "ID Total")
+             )
+              
+              
