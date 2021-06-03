@@ -1,0 +1,88 @@
+The syntax for this function in Power Pivot is as follows:
+  =SWITCH(expression,value_1,result_1,[value_2,result_2],…,[Else]) 
+
+One example:  breaking down encoded patterns like
+  customer billing codes, where each character represents something specific.
+  Take a code like the MP010450SP, where the ninth character could be one of
+        the following: 
+          E = Employee, S = Yacht Club, N = Non-Taxable, R = Restricted, 
+          I = Inactive, L = Social, M = Medical, U = Regular
+
+To break this apart in Excel, you could build a function with many nested IF
+statements and build a VLOOKUP() based on the letter options. 
+
+In Power Pivot,
+though, it’s much easier with the SWITCH() function, as follows:
+    =SWITCH([Column],
+        "E","Employee",
+        "S","Yacht Club",
+        "N","Non-Taxable",
+        "R","Restricted",
+        "I","Inactive",
+        "L","Social",
+        "M","Medical",
+        "U","Regular",
+        "Undefined"
+        ) 
+Note: There are several ways to accomplish this goal. 
+You could, for example, extract just the ninth letter and merge the results against a
+table. The purpose of this section is to give you yet another alternative.
+
+
+
+
+Building a Power Query SWITCH() Function
+Building the function isn’t overly difficult once you know the basic structure.
+Here’s how you get started:
+Open Ch22 Examples\Emulating SWITCH.xlsx
+
+  Create a new query → From Other Sources → Blank Query
+  Name the query fnSWITCH
+  Go to Home → Advanced Editor
+  Enter the M code shown below:
+
+
+(input) =>
+
+let
+  values = {
+  {result_1, return_value_1},
+  {input, "Undefined"}
+  },
+  Result = List.First(List.Select(values, each _{0}=input)){1}
+in
+  Result
+  
+This code is the basic framework for any SWITCH() function. These are the keyparts to recognize here:
+>   result_1          is the first of the possibilities that you may pass to the function
+
+>   return_value_1    is the value that you’d like to return if the first value is result_1
+
+>   If you need more values, 
+       you just insert another comma after the {result_1, return_value_1} section 
+       and put in a {result_2, return_value_2} section
+  
+You can keep adding as many values as you need
+The input value in the list will return the text Undefined if the value you pass isn’t in your provided list of options 
+
+>   (it’s the Else portion of the SWITCH() statement)
+
+Using this structure, you can modify the fnSWITCH function for your scenario as
+follows: 
+
+(input) =>
+   let
+    values = {
+        {"E", "Employee"},      // replace value_1 with “E” and  return_value_1 with “Employee”
+        {"S", "SCYC"},
+        {"N", "Non-Taxable"},
+        {"R", "Restricted"},
+        {"I", "Inactive"},
+        {"L", "Social"},
+        {"M", "Medical"},
+        {"U", "Regular"},
+        {input, "Undefined"}
+     },
+  Result = List.First(List.Select(values, each _{0}=input)){1}
+in
+  Result
