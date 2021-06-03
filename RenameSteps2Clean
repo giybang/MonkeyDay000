@@ -1,0 +1,38 @@
+    //  Original Code
+CalcSales = Table.AddColumn(NewType, "Multiply", each
+List.Product({[Quantity], [Price]}), type number),
+Rename = Table.RenameColumns(CalcSales,{{"Multiply",
+"Gross Sales"}})
+
+                    // End Code
+
+    /* NOTES 
+    
+Following the column’s name is a new keyword you haven’t encountered yet: each. 
+    The each keyword indicates to Power Query that you want this action performed for each row in the query. 
+Following this, you see the List.Product() function, 
+    which indicates which columns to multiply against each other and the data type the output should take.
+
+       //  Clean Above code with Renamed Steps
+You can now make some modifications to make the code shorter:
+1 Replace “Multiply” in the CalcSales line with “Gross Sales”
+2 Remove the comma from the end of the CalcSales line
+3 Remove the entire Rename line
+4. Change the last line to read “CalcSales” instead of “Rename”
+
+    END NOTE  */
+
+CalcSales = Table.AddColumn(NewType, "Gross Sales", 
+  each List.Product({[Quantity], [Price]}   
+  ) , type number)
+in
+CalcSales
+
+
+    /* NOTES 
+Note: Your line breaks may not appear in the same places—or they may
+not appear at all. The key pieces to remember are (1) the CalcSales line is
+being treated as one complete line of code since it was split onto two lines
+in the middle of the function, and (2) the line does not end with a comma
+since this line precedes the in keyword.
+    END NOTE  */
