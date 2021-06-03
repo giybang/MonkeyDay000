@@ -1,0 +1,32 @@
+/* I broke this code comment across multiple lines
+(by reading M is for Data Monkey) */
+
+    // comment on a single line
+
+                                        /*  Start every query with 
+  let 
+  Source = Excel.CurrentWorkbook() 
+    {[Name="Sales"]}[Content]         // Source with Table Name in Quotes and return Column Name in [] //
+  in
+                                      //End every query with in */
+
+let
+  Source = Excel.CurrentWorkbook(){[Name="Sales"]}[Content],
+  NewType = Table.TransformColumnTypes
+    (
+        Source,
+        {
+         {"Price", type number},
+         {"Date", type date},
+         {"Inventory Item", type text},
+         {"EmployeeID", type number},
+         {"Quantity", type number}
+        }
+    )
+in
+  NewType
+ 
+/*
+
+Surrounding function parameters
+{List}
