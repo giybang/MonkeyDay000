@@ -1,0 +1,35 @@
+To Return
+Formula
+      The current date TODAY()
+      End of the current month EOMONTH(TODAY(),0)
+      End of last month EOMONTH(TODAY(),-1)
+      End of next month EOMONTH(TODAY(),1)
+      End of the current year EOMONTH(TODAY(),12-MONTH(TODAY()))
+      End of year for date in B25 EOMONTH(B25,12-MONTH(B25))
+
+
+Excel Formula         Power Query Version
+  DAY([Date])             Date.Day([Date])
+  MONTH([Date])           Date.Month([Date])
+  YEAR([Date])            Date.Year([Date])
+  WEEKNUM([Date])         Date.WeekOfYear([Date])
+  WEEKDAY([Date])         Date.DayOfWeek([Date])
+  EOMONTH([Date],0)       Date.EndOfMonth([Date])
+  EOMONTH([Date],-1)+1    Date.StartOfMonth([Date])
+  
+  
+  Date.Addx functions
+    Adding x    Excel Formula           Power Query Version
+    Days        [Date]+x                Date.AddDays([Date],x)
+    Months      EDATE([Date],x)         Date.AddMonths([Date],x)
+    Years       EDATE([Date],12*x)      Date.AddYears([Date],x)
+    Weeks       [Date]+7*x              Date.AddWeeks([Date],x)])
+    
+    
+    Sun      /          Text([Date],"ddd")      /       Date.ToText([Date],"ddd")
+    Sunday      /       Text([Date],"dddd")       /     Date.ToText([Date],"dddd")
+    Aug 09, 2015        Text([Date],"mmm dd, yyyy")     Date.ToText([Date],"MMM dd, yyyy")
+    
+ 
+ Call the column MaxRecord and use the following formula
+=Table.Max([Details],"Amount")
