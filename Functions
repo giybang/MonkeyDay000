@@ -1,0 +1,113 @@
+Replicating VLOOKUP() with an explicitly defined approximate match.
+
+     Go to Add Column → Add Custom Column
+     Name the column 2,True
+     Use the following formula:
+            =pqVLOOKUP([Values],BandingLevels,2,true)
+            
+Replicating VLOOKUP() with an implicit approximate match.
+
+      Now try leaving the ,true off the end and returning the third
+      column from the lookup table instead of the second:
+          Go to Add Column → Add Custom Column
+          Name the column 3,default
+          Use the following formula:
+                  =pqVLOOKUP([Values],BandingLevels,3)
+
+            
+Replicating VLOOKUP() with an exact match.            
+      Try one more. What if you wanted to define an exact match against the second
+      column of the lookup table? To do this:
+          Go to Add Column → Add Custom Column
+          Name the column 2,false
+          Use the following formula:
+               =pqVLOOKUP([Values],BandingLevels,2,false)
+
+Warning: Even though you can use this function to emulate VLOOKUP()’s
+exact match, you shouldn’t. 
+  The reason is that you can accomplish an exact match effect by merging tables together—a method that will be much faster. 
+  If you need the approximate match functionality, however, this is a viable method.
+  
+  
+  
+  Understanding the pqVLOOKUP Function
+So how does the pqVLOOKUP function work? Take a look at the code:
+  (lookup_value as any, table_array as table, col_index_number as number,
+      optional approximate_match as logical ) as any => let
+
+      /*Provide optional match if user didn’t */
+
+matchtype =
+if approximate_match = null
+then true
+else approximate_match,
+          
+          /*Get name of return column */
+          
+Cols = Table.ColumnNames(table_array),
+ColTable = Table.FromList(Cols, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+ColName_match = Record.Field(ColTable{0},"Column1"),
+ColName_return = Record.Field(ColTable{col_index_number - 1}, "Column1"),
+
+    /*Find closest match */
+    
+SortData = Table.Sort(table_array,
+{{ColName_match, Order.Descending}}),
+RenameLookupCol =
+Table.RenameColumns(SortData,{{ColName_match, "Lookup"}}),
+RemoveExcess = Table.SelectRows(
+RenameLookupCol, each [Lookup] <= lookup_value),
+ClosestMatch=
+if Table.IsEmpty(RemoveExcess)=true
+then "#N/A"
+else Record.Field(RemoveExcess{0},"Lookup"),
+
+    /*What should be returned in case of approximate match? */
+
+ClosestReturn=
+if Table.IsEmpty(RemoveExcess)=true
+then "#N/A"
+else Record.Field(RemoveExcess{0},ColName_return),
+
+/*Modify result if we need an exact match */
+
+Return =
+if matchtype=true
+
+else
+if lookup_value = ClosestMatch
+then ClosestReturn
+else "#N/A"
+in Return
+
+
+
+Each of the variables in the parameters has an explicit data type
+declared. This is to prevent the user from accidentally providing a table
+where a numeric column number is required.
+The approximate_match variable is defined as optional, meaning the
+user can ignore it.
+The matchtype variable tests to see if a match type was specified. If a
+match type was specified, it is assigned to the matchtype variable, but
+if not (approximate_match is null), a value of true will be assigned.
+The name of the column to be returned is pulled by reviewing the
+column headers of the table, splitting them into a list of records, and
+pulling out the record whose index matches the requested column
+(less 1 to adjust to base 0).
+The data is sorted in descending order, based on the column to be
+searched. All records greater than the requested value are removed
+(by selecting all rows where the value is less than or equal to the value
+being searched for).
+If no rows remain, a #N/A result is then stored, but if there are rows,
+the first record in the lookup column is stored. This result can later be
+checked to see if it matches the record being searched for (which is
+important for the exact match scenario).
+The approximate match value is then (always) calculated, even if an
+exact match was requested. If no rows are present in the data set, a
+#N/A result is stored; otherwise, the closest value is pulled from the
+return column.
+The final test checks the type of match requested. If it is an
+approximate match, then the closest match is always returned (which
+may be #N/A). If, however, the match type was an exact match, the
+code will return #N/A instead of the closest match unless the lookup
+column’s value matched the value being sought exactly.
